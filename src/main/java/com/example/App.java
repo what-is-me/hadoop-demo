@@ -16,11 +16,11 @@ public final class App {
     public static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable>{
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException{
 			String[] row = value.toString().split(":");
-			System.out.println(row[0]+":"+Integer.parseInt(row[2]));
+			System.out.println(row[0] + ":" + Integer.parseInt(row[2]));
 			context.write(new Text(row[0]), new IntWritable(Integer.parseInt(row[2])));
 		}
 	}
-	
+
 	public static class MyReduce extends Reducer<Text, IntWritable, Text, DoubleWritable>{
 		private static final int[] GPABOUNDS = {95, 90, 85, 80, 75, 70, 65, 60};
 		private static final double MAXGPA = 4.5;
@@ -34,8 +34,8 @@ public final class App {
 			return 0;
 		}
 		protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException{
-			double sum=0;
-			int num=0;
+			double sum = 0;
+			int num = 0;
 			for(IntWritable value: values){
 				sum += calcGPA(value.get());
 				num += 1;
@@ -43,10 +43,10 @@ public final class App {
 			context.write(key, new DoubleWritable(sum/num));
 		}
 	}
-	
+
 	public static void main(String[] args) throws InterruptedException, IOException, ClassNotFoundException{
-		Configuration conf=new Configuration();
-		Job job=Job.getInstance(conf, "top");
+		Configuration conf = new Configuration();
+		Job job = Job.getInstance(conf, "top");
 		job.setJobName("top");
 		job.setJarByClass(App.class);
 		job.setMapperClass(MyMapper.class);
@@ -55,7 +55,7 @@ public final class App {
 		job.setReducerClass(MyReduce.class);
 		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(IntWritable.class);
-		FileInputFormat.addInputPath(job,  new Path(args[0]));
+		FileInputFormat.addInputPath(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 		job.waitForCompletion(true);
 	}
